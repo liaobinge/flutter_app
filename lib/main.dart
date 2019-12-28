@@ -407,19 +407,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: const Text('查余', style: TextStyle(fontSize: 15)),
                 ),
               ),
-              Padding(
-                padding: new EdgeInsets.all(8.0),
-                child: RaisedButton(
-                  onPressed: () {
-                    postJSON({
-                      "transId": "读取卡号",
-                      "appName": appName,
-                      "projectTag": "SliverStoneCloudPay"
-                    });
-                  },
-                  child: const Text('读取卡号', style: TextStyle(fontSize: 15)),
-                ),
-              ),
             ],
           ),
           Row(
@@ -551,6 +538,26 @@ class _MyHomePageState extends State<MyHomePage> {
                     }
                   },
                   child: const Text('聚合查询', style: TextStyle(fontSize: 15)),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: RaisedButton(
+                  onPressed: () {
+                    postJSON({
+                      "transId": "读取卡号",
+                      "appName": appName,
+                      "projectTag": "SliverStoneCloudPay"
+                    });
+                  },
+                  child: const Text('读取卡号', style: TextStyle(fontSize: 15)),
                 ),
               ),
             ],
