@@ -1,9 +1,50 @@
+
+
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 void main() => runApp(MyApp());
+String serverUrl = "http://192.168.31.139:8000/";
+String amt = "";
+
+void toast(String str){
+  Fluttertoast.showToast(
+      msg: str,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      timeInSecForIos: 1,
+      backgroundColor: Colors.cyan,
+      textColor: Colors.black54
+  );
+}
+
+void postJSON(data) async {
+  print(data.toString());
+  print(serverUrl);
+  Options options = Options(headers: {HttpHeaders.acceptHeader:"accept: application/json","content-type": "application/json"});
+
+  Dio _dio = Dio();
+  _dio.options.contentType="application/json";
+  String result;
+  try {
+    var response = await _dio.post(serverUrl, data: data,options: options);
+    print(response);
+      var result = response.data;
+      toast("Result:"+result);
+
+  } catch (e) {
+    toast("Ex:"+e.toString());
+    return print(e.toString());
+    
+  }
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -44,21 +85,21 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  final TextEditingController urlController = new TextEditingController();
+  final TextEditingController amtController = new TextEditingController();
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+  // final TextEditingController amtController = new TextEditingController();
+  final TextEditingController _controller = new TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    urlController.addListener(() {
+      print("urlController.addListener");
+      serverUrl = urlController.text;
+    });
+    amtController.addListener(() {
+      amt = amtController.text;
+    });
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -66,46 +107,271 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
+      appBar: new AppBar(
+        leading: new IconButton(
+          icon: new Icon(Icons.menu),
+          tooltip: 'Navigation menu',
+          onPressed: null,
         ),
+        title: new Text('Example title'),
+        actions: <Widget>[
+          new IconButton(
+            icon: new Icon(Icons.search),
+            tooltip: 'Search',
+            onPressed: null,
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      body: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: Text('连接地址'),
+              ),
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: 200,
+                  ),
+                  child: TextField(
+                    controller: urlController,
+                    decoration: new InputDecoration(
+                      hintText: '连接地址,IP和端口',
+                      labelText:"http://192.168.31.139:8000/",
+                    ),
+                  ),
+                ),
+              ),
+              // const SizedBox(height: 30),
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: 150,
+                  ),
+                  child: TextField(
+                    controller: amtController,
+                    decoration: new InputDecoration(
+                      hintText: '消费金额',
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: 150,
+                  ),
+                  child: TextField(
+                    controller: _controller,
+                    decoration: new InputDecoration(
+                      hintText: '凭证号',
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: 150,
+                  ),
+                  child: TextField(
+                    controller: _controller,
+                    decoration: new InputDecoration(
+                      hintText: '参考号',
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: 150,
+                  ),
+                  child: TextField(
+                    controller: _controller,
+                    decoration: new InputDecoration(
+                      hintText: '交易日期',
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: 150,
+                  ),
+                  child: TextField(
+                    controller: _controller,
+                    decoration: new InputDecoration(
+                      hintText: '付款码',
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: 150,
+                  ),
+                  child: TextField(
+                    controller: _controller,
+                    decoration: new InputDecoration(
+                      hintText: '唯一订单号',
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Container(
+            height: 40,
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: RaisedButton(
+                  onPressed: () {
+                    postJSON({"transId":"签到","amt":"000000000001","projectTag":"SliverStoneCloudPay"});
+                  },
+                  child: const Text('签到', style: TextStyle(fontSize: 15)),
+                ),
+              ),
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: RaisedButton(
+                  onPressed: () {},
+                  child: const Text('消费', style: TextStyle(fontSize: 15)),
+                ),
+              ),
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: RaisedButton(
+                  onPressed: () {},
+                  child: const Text('撤销', style: TextStyle(fontSize: 15)),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: RaisedButton(
+                  onPressed: () {},
+                  child: const Text('退货', style: TextStyle(fontSize: 15)),
+                ),
+              ),
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: RaisedButton(
+                  onPressed: () {},
+                  child: const Text('重打印', style: TextStyle(fontSize: 15)),
+                ),
+              ),
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: RaisedButton(
+                  onPressed: () {},
+                  child: const Text('读取卡号', style: TextStyle(fontSize: 15)),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: RaisedButton(
+                  onPressed: () {},
+                  child: const Text('优惠立减', style: TextStyle(fontSize: 15)),
+                ),
+              ),
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: RaisedButton(
+                  onPressed: () {},
+                  child: const Text('扫码消费', style: TextStyle(fontSize: 15)),
+                ),
+              ),
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: RaisedButton(
+                  onPressed: () {},
+                  child: const Text('扫码退货', style: TextStyle(fontSize: 15)),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: RaisedButton(
+                  onPressed: () {},
+                  child: const Text('聚合支付', style: TextStyle(fontSize: 15)),
+                ),
+              ),
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: RaisedButton(
+                  onPressed: () {},
+                  child: const Text('聚合退货', style: TextStyle(fontSize: 15)),
+                ),
+              ),
+              Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: RaisedButton(
+                  onPressed: () {},
+                  child: const Text('聚合查询', style: TextStyle(fontSize: 15)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
